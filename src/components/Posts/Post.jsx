@@ -3,10 +3,14 @@ import { Avatar } from '../Avatar/Avatar'
 import { format, formatDistanceToNow } from 'date-fns'
 import ptBR from 'date-fns/locale/pt-BR'
 import styles from './Posts.module.css'
-
-const comments = [1, 2]
+import { useState } from 'react'
 
 export function Post({ author, content, publishedAt }) {
+  const [comments, setComents] = useState([
+    'Post muito bacana, hein?!'
+  ])
+  const [ newCommentText, setNewComentText ] = useState('')
+
   const { avatarUrl, name, role } = author
 
   const formatDatePublished = format(publishedAt, "d 'de' LLLL 'às' HH:mm'h'", {
@@ -19,9 +23,22 @@ export function Post({ author, content, publishedAt }) {
   })
 
   function handleCreateComentNew() {
+    // console.log(event.target.comment.value)
     event.preventDefault()
 
-    comments.push(3)
+    setComents([
+      ...comments,
+      newCommentText
+    ])
+    setNewComentText('')
+  }
+
+  function handleCommentChange() {
+    setNewComentText(event.target.value);
+  }
+
+  function deleteComment(comment) {
+    console.log(`deleteComment ${comment}`);
   }
 
   return (
@@ -44,10 +61,10 @@ export function Post({ author, content, publishedAt }) {
       <div className={styles.content}>
         {content.map(content => {
           if (content.type === 'paragraph') {
-            return <p>{content.content}</p>
+            return <p key={content.content}>{content.content}</p>
           } else if (content.type === 'link') {
             return (
-              <p>
+              <p key={content.content}>
                 <a href="#">{content.content}</a>{' '}
               </p>
             )
@@ -58,16 +75,27 @@ export function Post({ author, content, publishedAt }) {
       <form onSubmit={handleCreateComentNew} className={styles.comentForm}>
         <strong>Deixe seu feedback</strong>
 
-        <textarea placeholder="Deixe um comentario" />
+        <textarea
+          name="comment"
+          placeholder="Deixe um comentario"
+          onChange={handleCommentChange}
+          value={newCommentText}
+        />
 
-        <footer>
+        <footer> 
           <button type="submit">Publicar</button>
         </footer>
       </form>
 
       <div className={styles.comentList}>
         {comments.map(comment => {
-          return <Coment />
+          return (
+            <Coment
+              key={comment}
+              content={comment}
+              onDeleteComment={deleteComment}
+            />
+          )
         })}
       </div>
     </article>
