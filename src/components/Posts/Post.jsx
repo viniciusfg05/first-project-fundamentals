@@ -6,10 +6,8 @@ import styles from './Posts.module.css'
 import { useState } from 'react'
 
 export function Post({ author, content, publishedAt }) {
-  const [comments, setComents] = useState([
-    'Post muito bacana, hein?!'
-  ])
-  const [ newCommentText, setNewComentText ] = useState('')
+  const [comments, setComents] = useState(['Post muito bacana, hein?!'])
+  const [newCommentText, setNewComentText] = useState('')
 
   const { avatarUrl, name, role } = author
 
@@ -26,20 +24,31 @@ export function Post({ author, content, publishedAt }) {
     // console.log(event.target.comment.value)
     event.preventDefault()
 
-    setComents([
-      ...comments,
-      newCommentText
-    ])
+    setComents([...comments, newCommentText])
     setNewComentText('')
   }
 
   function handleCommentChange() {
-    setNewComentText(event.target.value);
+    event.target.setCustomValidity('')
+    setNewComentText(event.target.value)
   }
 
-  function deleteComment(comment) {
-    console.log(`deleteComment ${comment}`);
+  function deleteComment(commentDelete) {
+    const newListCommentLaterDelete = comments.filter(comment => {
+      //deletar o comentario diferente do comentDelete
+      return comment !== commentDelete
+    })
+
+    setComents(newListCommentLaterDelete)
   }
+
+  function handleNewCommentInvalid() {
+    event.target.setCustomValidity('Esse campo é Obrigatório')
+    // com isso se o usuario nao digitart nada e da o submit vai aparecer essa mensagem
+    // se a textarea estiver preenchida, precisamos definir setCustomValidity('') para vazio ao clicar no handleCommentChange
+  }
+
+  const isNewCommentEmpty = newCommentText.length === 0
 
   return (
     <article className={styles.post}>
@@ -80,10 +89,15 @@ export function Post({ author, content, publishedAt }) {
           placeholder="Deixe um comentario"
           onChange={handleCommentChange}
           value={newCommentText}
+          onInvalid={handleNewCommentInvalid} // chamada sempre que o html indetificar um submit invalido
+          required // impedi o push de um novo comentario se a textarea estiver vazia
         />
 
-        <footer> 
-          <button type="submit">Publicar</button>
+        <footer>
+          <button type="submit" disabled={isNewCommentEmpty}>
+            {/* a função onChange atualizar a propriedade a cade digitação ou seja vamos verificar se o newCommentText é = 0 para desabilidar o button*/}
+            Publicar
+          </button>
         </footer>
       </form>
 
